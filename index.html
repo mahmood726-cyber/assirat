@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>As-Sirat — The Evidence Passport</title>
+<style>
+/* === As-Sirat: The Straight Path Through Evidence === */
+/* Inspired by Surah Al-Fatiha: seven domains, one verdict */
+
+:root {
+  --bg: #0a0a1a; --surface: #141428; --surface2: #1c1c38;
+  --card: #1a1a34; --border: #2a2a4a; --text: #e8e8f0; --text2: #9898b0;
+  --gold: #d4a853; --gold-dim: rgba(212,168,83,0.15);
+  --green: #4caf50; --green-bg: rgba(76,175,80,0.12);
+  --amber: #ff9800; --amber-bg: rgba(255,152,0,0.12);
+  --red: #f44336; --red-bg: rgba(244,67,54,0.12);
+  --blue: #42a5f5; --blue-bg: rgba(66,165,245,0.12);
+  --accent: #7c4dff;
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'Consolas', 'Monaco', monospace;
+  --radius: 10px; --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+[data-theme="light"] {
+  --bg: #f5f3ef; --surface: #ffffff; --surface2: #f0ede7;
+  --card: #ffffff; --border: #d5d0c8; --text: #1a1a2e; --text2: #666;
+  --gold: #8b6914; --gold-dim: rgba(139,105,20,0.08);
+  --green-bg: rgba(76,175,80,0.08); --amber-bg: rgba(255,152,0,0.08);
+  --red-bg: rgba(244,67,54,0.08); --blue-bg: rgba(66,165,245,0.08);
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+
+/* Layout */
+.page { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+header { text-align: center; padding: 32px 0 24px; border-bottom: 2px solid var(--gold); margin-bottom: 24px; }
+.title { font-family: var(--serif); font-size: 2.2rem; font-weight: 700; color: var(--gold); letter-spacing: -0.02em; }
+.arabic { font-size: 1.8rem; color: var(--gold); opacity: 0.7; margin-bottom: 4px; direction: rtl; }
+.subtitle { font-size: 0.95rem; color: var(--text2); margin-top: 6px; }
+.verse { font-style: italic; color: var(--text2); font-size: 0.85rem; margin-top: 12px; opacity: 0.8; }
+
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.card h2 { font-size: 1.1rem; color: var(--gold); margin-bottom: 12px; font-family: var(--serif); }
+.card h3 { font-size: 0.95rem; color: var(--text); margin-bottom: 8px; }
+
+/* Data Entry */
+.data-grid { display: grid; grid-template-columns: 2fr repeat(4, 1fr) auto; gap: 4px; margin-bottom: 12px; }
+.data-grid input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 8px; border-radius: 6px; font-size: 13px; font-family: var(--mono); }
+.data-grid .hdr { font-size: 0.75rem; font-weight: 600; color: var(--text2); padding: 4px 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.del-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 16px; padding: 4px 8px; }
+.del-btn:hover { opacity: 0.7; }
+
+/* Buttons */
+.btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-gold:hover { filter: brightness(1.1); }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Examples */
+.ex-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.ex-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+.ex-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Passport */
+.passport { display: none; }
+.passport.visible { display: block; }
+.passport-header { text-align: center; padding: 20px; border-bottom: 2px solid var(--gold); margin-bottom: 20px; }
+.passport-header .grade { font-size: 2.8rem; font-weight: 900; font-family: var(--serif); }
+.passport-header .grade-label { font-size: 0.9rem; color: var(--text2); margin-top: 4px; }
+.grade-CLEAR { color: var(--green); }
+.grade-CAUTION { color: var(--amber); }
+.grade-UNCERTAIN { color: var(--red); }
+.grade-BLOCKED { color: var(--red); }
+
+/* Seven Domains */
+.domains { display: grid; gap: 12px; }
+.domain { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; padding: 14px 16px; background: var(--surface); border-radius: var(--radius); border-left: 4px solid var(--border); }
+.domain.pass { border-left-color: var(--green); background: var(--green-bg); }
+.domain.warn { border-left-color: var(--amber); background: var(--amber-bg); }
+.domain.fail { border-left-color: var(--red); background: var(--red-bg); }
+.domain.info { border-left-color: var(--blue); background: var(--blue-bg); }
+.domain-num { font-size: 1.4rem; font-weight: 900; color: var(--gold); font-family: var(--serif); text-align: center; }
+.domain-name { font-weight: 700; font-size: 0.9rem; }
+.domain-arabic { font-size: 0.75rem; color: var(--text2); direction: rtl; }
+.domain-detail { font-size: 0.82rem; color: var(--text2); margin-top: 2px; }
+.domain-verdict { font-weight: 700; font-size: 0.85rem; text-align: right; white-space: nowrap; }
+.domain-verdict.pass { color: var(--green); }
+.domain-verdict.warn { color: var(--amber); }
+.domain-verdict.fail { color: var(--red); }
+
+/* Summary Table */
+.summary-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 12px; }
+.summary-table th, .summary-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+.summary-table th { color: var(--text2); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+
+/* Report */
+.report-text { font-family: var(--serif); font-size: 0.92rem; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
+
+/* Theme toggle */
+.theme-btn { position: fixed; top: 12px; right: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text2); padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; z-index: 100; }
+
+/* Print */
+@media print { .no-print { display: none !important; } body { background: #fff; color: #000; } .card { box-shadow: none; border: 1px solid #ccc; } }
+/* Skip nav */
+.skip-nav { position: absolute; left: -9999px; top: auto; }
+.skip-nav:focus { position: fixed; left: 0; top: 0; z-index: 999; padding: 8px 16px; background: var(--gold); color: #000; text-decoration: none; border-radius: 0 0 8px 0; }
+</style>
+</head>
+<body>
+<a href="#main" class="skip-nav">Skip to content</a>
+<button class="theme-btn no-print" onclick="toggleTheme()" aria-label="Toggle theme">Light</button>
+
+<div class="page" id="main" role="main">
+<header>
+  <div class="arabic">الصِّرَاطَ الْمُسْتَقِيمَ</div>
+  <div class="title">As-Sirat</div>
+  <div class="subtitle">The Evidence Passport &mdash; Seven Domains, One Verdict</div>
+  <div class="verse">"Guide us to the straight path" &mdash; Al-Fatiha 1:6</div>
+</header>
+
+<!-- Data Entry -->
+<div class="card no-print" id="data-card">
+  <h2>Enter Meta-Analysis Data</h2>
+  <div class="ex-bar">
+    <span style="color:var(--text2);font-size:12px;align-self:center">Examples:</span>
+    <button class="ex-btn" onclick="loadExample(0)">SGLT2i Heart Failure (k=8)</button>
+    <button class="ex-btn" onclick="loadExample(1)">Statins Primary Prevention (k=12)</button>
+    <button class="ex-btn" onclick="loadExample(2)">SSRIs Depression (k=10)</button>
+  </div>
+
+  <div class="data-grid" id="grid-header">
+    <div class="hdr">Study</div><div class="hdr">Events(E)</div><div class="hdr">N(E)</div><div class="hdr">Events(C)</div><div class="hdr">N(C)</div><div class="hdr"></div>
+  </div>
+  <div id="study-rows"></div>
+  <div class="btn-group" style="margin-top:12px">
+    <button class="btn btn-sm btn-outline" onclick="addRow()">+ Add Study</button>
+    <button class="btn btn-sm btn-outline" onclick="clearAll()">Clear</button>
+    <button class="btn btn-gold" onclick="runPassport()" id="btnRun">Generate Evidence Passport</button>
+  </div>
+</div>
+
+<!-- Evidence Passport Output -->
+<div class="passport" id="passport">
+  <div class="card">
+    <div class="passport-header">
+      <div class="grade" id="overallGrade">—</div>
+      <div class="grade-label" id="overallLabel">Run analysis to generate passport</div>
+    </div>
+
+    <div class="domains" id="domains"></div>
+  </div>
+
+  <!-- Summary Statistics -->
+  <div class="card" id="summary-card">
+    <h2>Pooled Estimate</h2>
+    <table class="summary-table" id="summaryTable"></table>
+  </div>
+
+  <!-- Report Text -->
+  <div class="card">
+    <h2>Structured Report</h2>
+    <div class="report-text" id="reportText"></div>
+    <div class="btn-group no-print" style="margin-top:12px">
+      <button class="btn btn-sm btn-outline" onclick="copyReport()">Copy Report</button>
+      <button class="btn btn-sm btn-outline" onclick="exportJSON()">Export JSON</button>
+    </div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:24px 0;color:var(--text2);font-size:0.8rem;border-top:1px solid var(--border);margin-top:24px">
+  As-Sirat v1.0 &mdash; No data leaves your device. Open source (MIT).
+</footer>
+</div>
+
+<script>
+/* ============================================================
+   As-Sirat: The Evidence Passport
+   Seven domains of evidence assessment, inspired by Al-Fatiha
+   ============================================================ */
+
+// === STATE ===
+var studies = [];
+var lastResult = null;
+
+// === EXAMPLES ===
+var EXAMPLES = [
+  { name: 'SGLT2i Heart Failure', measure: 'OR', studies: [
+    {study:'DAPA-HF',eE:386,nE:2373,eC:502,nC:2371},
+    {study:'EMPEROR-Reduced',eE:361,nE:1863,eC:462,nC:1867},
+    {study:'SOLOIST-WHF',eE:51,nE:608,eC:76,nC:614},
+    {study:'DELIVER',eE:512,nE:3131,eC:610,nC:3132},
+    {study:'EMPEROR-Preserved',eE:415,nE:2997,eC:511,nC:2991},
+    {study:'DAPA-CKD HF sub',eE:38,nE:468,eC:72,nC:466},
+    {study:'CREDENCE HF sub',eE:141,nE:630,eC:168,nC:634},
+    {study:'VERTIS-CV HF sub',eE:128,nE:1958,eC:133,nC:1958}
+  ]},
+  { name: 'Statins Primary Prevention', measure: 'RR', studies: [
+    {study:'WOSCOPS',eE:174,nE:3302,eC:248,nC:3293},
+    {study:'AFCAPS',eE:116,nE:3304,eC:183,nC:3301},
+    {study:'MEGA',eE:66,nE:3866,eC:101,nC:3966},
+    {study:'JUPITER',eE:142,nE:8901,eC:251,nC:8901},
+    {study:'HOPE-3',eE:235,nE:6361,eC:304,nC:6344},
+    {study:'ALLHAT-LLT',eE:631,nE:5170,eC:641,nC:5185},
+    {study:'ASCOT-LLA',eE:100,nE:5168,eC:154,nC:5137},
+    {study:'CARDS',eE:83,nE:1428,eC:127,nC:1410},
+    {study:'PROSPER',eE:408,nE:2891,eC:473,nC:2913},
+    {study:'LIPS',eE:81,nE:844,eC:105,nC:833},
+    {study:'4S',eE:182,nE:2221,eC:256,nC:2223},
+    {study:'HPS-subgroup',eE:585,nE:5082,eC:701,nC:5081}
+  ]},
+  { name: 'SSRIs Depression', measure: 'SMD', studies: [
+    {study:'Trial A',mE:8.2,sdE:5.1,nE:120,mC:10.5,sdC:5.3,nC:118},
+    {study:'Trial B',mE:7.8,sdE:4.9,nE:85,mC:9.9,sdC:5.0,nC:87},
+    {study:'Trial C',mE:9.1,sdE:5.5,nE:200,mC:10.8,sdC:5.4,nC:198},
+    {study:'Trial D',mE:8.5,sdE:4.8,nE:95,mC:9.2,sdC:5.1,nC:93},
+    {study:'Trial E',mE:7.0,sdE:5.2,nE:150,mC:10.0,sdC:5.0,nC:148},
+    {study:'Trial F',mE:8.8,sdE:5.0,nE:60,mC:9.5,sdC:5.2,nC:62},
+    {study:'Trial G',mE:9.5,sdE:5.3,nE:180,mC:11.0,sdC:5.1,nC:175},
+    {study:'Trial H',mE:7.5,sdE:4.7,nE:110,mC:10.2,sdC:5.0,nC:112},
+    {study:'Trial I',mE:8.0,sdE:5.4,nE:75,mC:9.8,sdC:5.3,nC:78},
+    {study:'Trial J',mE:9.0,sdE:4.6,nE:140,mC:10.1,sdC:4.9,nC:138}
+  ]}
+];
+
+// === MATH ===
+function normalCDF(x) {
+  if (x === 0) return 0.5;
+  var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  var sign = x<0?-1:1, ax=Math.abs(x), t=1/(1+p*ax);
+  var y = 1-(a1*t+a2*t*t+a3*t*t*t+a4*t*t*t*t+a5*t*t*t*t*t)*Math.exp(-ax*ax/2);
+  return 0.5*(1+sign*y);
+}
+function normalQuantile(p) {
+  if (p<=0) return -Infinity; if (p>=1) return Infinity; if (p===0.5) return 0;
+  var a=[-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239e0];
+  var b=[-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];
+  var c=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838e0,-2.549732539343734e0,4.374664141464968e0,2.938163982698783e0];
+  var d=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996e0,3.754408661907416e0];
+  var pL=0.02425,pH=1-pL,q,r;
+  if(p<pL){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p<=pH){q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+  q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+}
+
+function computeLogOR(eE,nE,eC,nC) {
+  var cc = 0.5;
+  var a=eE+cc,b=nE-eE+cc,c=eC+cc,dd=nC-eC+cc;
+  var yi = Math.log(a*dd/(b*c));
+  var vi = 1/a+1/b+1/c+1/dd;
+  return {yi:yi,vi:vi};
+}
+function computeLogRR(eE,nE,eC,nC) {
+  var cc=0.5;
+  var pE=(eE+cc)/(nE+2*cc), pC=(eC+cc)/(nC+2*cc);
+  var yi = Math.log(pE/pC);
+  var vi = (1-pE)/(pE*(nE+2*cc)) + (1-pC)/(pC*(nC+2*cc));
+  return {yi:yi,vi:vi};
+}
+function computeSMD(mE,sdE,nE,mC,sdC,nC) {
+  var df=nE+nC-2;
+  var sp = Math.sqrt(((nE-1)*sdE*sdE+(nC-1)*sdC*sdC)/df);
+  if (sp===0) return {yi:0,vi:1};
+  var d = (mE-mC)/sp;
+  var J = 1-3/(4*df-1);
+  var g = d*J;
+  var vi = (nE+nC)/(nE*nC) + g*g/(2*df);
+  return {yi:g, vi:vi};
+}
+
+function getEffect(s, measure) {
+  if (measure === 'OR') return computeLogOR(s.eE,s.nE,s.eC,s.nC);
+  if (measure === 'RR') return computeLogRR(s.eE,s.nE,s.eC,s.nC);
+  if (measure === 'SMD') return computeSMD(s.mE,s.sdE,s.nE,s.mC,s.sdC,s.nC);
+  return {yi:0,vi:1};
+}
+
+// === POOLING (DL + HKSJ) ===
+function dlPool(yi, vi) {
+  var k = yi.length;
+  if (k===0) return null;
+  if (k===1) return {est:yi[0],se:Math.sqrt(vi[0]),tau2:0,I2:0,Q:0,ci:[yi[0]-1.96*Math.sqrt(vi[0]),yi[0]+1.96*Math.sqrt(vi[0])],k:1,weights:[1]};
+  var wF=vi.map(function(v){return 1/v}), sumW=wF.reduce(function(a,b){return a+b},0);
+  var muF=0; for(var i=0;i<k;i++) muF+=wF[i]*yi[i]; muF/=sumW;
+  var Q=0; for(var i=0;i<k;i++) Q+=wF[i]*(yi[i]-muF)*(yi[i]-muF);
+  var C=sumW-wF.reduce(function(a,w){return a+w*w},0)/sumW;
+  var tau2=Math.max(0,(Q-(k-1))/C);
+  var wR=vi.map(function(v){return 1/(v+tau2)}), sumWR=wR.reduce(function(a,b){return a+b},0);
+  var est=0; for(var i=0;i<k;i++) est+=wR[i]*yi[i]; est/=sumWR;
+  var se=Math.sqrt(1/sumWR);
+  var I2=Q>0?Math.max(0,(Q-(k-1))/Q):0;
+  // HKSJ
+  var qHKSJ=0; for(var i=0;i<k;i++) qHKSJ+=wR[i]*(yi[i]-est)*(yi[i]-est); qHKSJ/=(k-1);
+  var seHKSJ = se*Math.sqrt(Math.max(1,qHKSJ));
+  // t-distribution CI
+  var df=k-1;
+  var tCrit = df<=1?12.706:df===2?4.303:df===3?3.182:df===4?2.776:df===5?2.571:df<=10?2.228:df<=20?2.086:df<=30?2.042:1.96;
+  var ci=[est-tCrit*seHKSJ, est+tCrit*seHKSJ];
+  var weights=wR.map(function(w){return w/sumWR});
+  return {est:est,se:seHKSJ,tau2:tau2,I2:I2,Q:Q,ci:ci,k:k,weights:weights,tCrit:tCrit};
+}
+
+// === PREDICTION INTERVAL ===
+function predictionInterval(est, se, tau2, k) {
+  if (k<3) return null;
+  var df=k-2;
+  var tCrit = df<=1?12.706:df===2?4.303:df===3?3.182:df===4?2.776:df===5?2.571:df<=10?2.228:df<=20?2.086:1.96;
+  var piSE = Math.sqrt(tau2 + se*se);
+  return [est-tCrit*piSE, est+tCrit*piSE];
+}
+
+// === EGGER'S TEST ===
+function eggerTest(yi, vi) {
+  var k=yi.length;
+  if (k<5) return {z:0,p:1,intercept:0};
+  var prec=vi.map(function(v){return 1/Math.sqrt(v)});
+  var zi=yi.map(function(y,i){return y/Math.sqrt(vi[i])});
+  var meanP=prec.reduce(function(a,b){return a+b},0)/k;
+  var meanZ=zi.reduce(function(a,b){return a+b},0)/k;
+  var ssP=0,spZ=0;
+  for(var i=0;i<k;i++){ssP+=(prec[i]-meanP)*(prec[i]-meanP);spZ+=(prec[i]-meanP)*(zi[i]-meanZ);}
+  if(ssP===0)return{z:0,p:1,intercept:0};
+  var slope=spZ/ssP;
+  var intercept=meanZ-slope*meanP;
+  var residSS=0;for(var i=0;i<k;i++){var pred=intercept+slope*prec[i];residSS+=(zi[i]-pred)*(zi[i]-pred);}
+  var residSE=Math.sqrt(residSS/((k-2)*ssP));
+  var tStat=intercept/residSE;
+  var p=2*(1-normalCDF(Math.abs(tStat)));
+  return {z:tStat,p:p,intercept:intercept};
+}
+
+// === FRAGILITY INDEX (MAFI) ===
+function fragilityIndex(yi, vi) {
+  var pool = dlPool(yi,vi);
+  if (!pool || pool.k<2) return {mafi:Infinity};
+  var isSignificant = pool.ci[0]>0 || pool.ci[1]<0;
+  if (!isSignificant) return {mafi:0}; // already non-significant
+  // Simplified: count how many studies must flip direction to lose significance
+  var flips=0;
+  var yiCopy=yi.slice(), viCopy=vi.slice();
+  for (var attempt=0;attempt<100;attempt++){
+    // Find study with smallest |yi| and flip it toward null
+    var minIdx=0, minAbs=Math.abs(yiCopy[0]);
+    for(var i=1;i<yiCopy.length;i++){if(Math.abs(yiCopy[i])<minAbs){minAbs=Math.abs(yiCopy[i]);minIdx=i;}}
+    yiCopy[minIdx] = -yiCopy[minIdx]; // flip sign
+    flips++;
+    var newPool=dlPool(yiCopy,viCopy);
+    if(newPool && !(newPool.ci[0]>0||newPool.ci[1]<0)) break;
+  }
+  return {mafi:flips};
+}
+
+// === EXCESS SIGNIFICANCE ===
+function excessSigTest(yi, vi, pooledEst) {
+  var k=yi.length;
+  if(k<5) return {ratio:1,p:1};
+  var observed=0;
+  yi.forEach(function(y,i){if(Math.abs(y)/Math.sqrt(vi[i])>1.96)observed++;});
+  var expected=0;
+  yi.forEach(function(y,i){
+    var power=1-normalCDF(1.96-Math.abs(pooledEst)/Math.sqrt(vi[i]))+normalCDF(-1.96-Math.abs(pooledEst)/Math.sqrt(vi[i]));
+    expected+=power;
+  });
+  if(expected<0.5)expected=0.5;
+  var ratio=observed/expected;
+  var chiSq=(observed-expected)*(observed-expected)/expected;
+  var p=1-normalCDF(Math.sqrt(chiSq));
+  return {ratio:ratio,p:p,observed:observed,expected:expected.toFixed(1)};
+}
+
+// === POWER ANALYSIS ===
+function metaPower(yi, vi, pooledEst) {
+  var k=yi.length;
+  var pool=dlPool(yi,vi);
+  if(!pool)return{power:0};
+  var power=1-normalCDF(1.96-Math.abs(pooledEst)/pool.se)+normalCDF(-1.96-Math.abs(pooledEst)/pool.se);
+  return {power:power};
+}
+
+// === THE SEVEN DOMAINS ===
+function assessDomains(yi, vi, pool, measure) {
+  var k = yi.length;
+  var isLog = measure==='OR'||measure==='RR';
+  var domains = [];
+
+  // 1. AL-QUWWA (Strength) — Power + Fragility
+  var pw = metaPower(yi,vi,pool.est);
+  var fi = fragilityIndex(yi,vi);
+  var d1verdict = pw.power>=0.8 && fi.mafi>5 ? 'pass' : pw.power>=0.5 || fi.mafi>2 ? 'warn' : 'fail';
+  domains.push({
+    num: 1, name: 'Al-Quwwa', arabic: 'القوة', english: 'Strength',
+    detail: 'Power: '+(pw.power*100).toFixed(0)+'% | Fragility Index: '+fi.mafi,
+    verdict: d1verdict, verdictText: d1verdict==='pass'?'Strong':d1verdict==='warn'?'Moderate':'Fragile'
+  });
+
+  // 2. AL-MIZAN (Balance) — Publication Bias
+  var egger = eggerTest(yi,vi);
+  var d2verdict = egger.p>0.10 ? 'pass' : egger.p>0.05 ? 'warn' : 'fail';
+  domains.push({
+    num: 2, name: 'Al-Mizan', arabic: 'الميزان', english: 'Balance',
+    detail: 'Egger p='+(egger.p<0.001?'<0.001':egger.p.toFixed(3))+' | intercept='+egger.intercept.toFixed(2),
+    verdict: d2verdict, verdictText: d2verdict==='pass'?'Balanced':d2verdict==='warn'?'Suspect':'Asymmetric'
+  });
+
+  // 3. AS-SIDQ (Truth) — Excess Significance
+  var xs = excessSigTest(yi,vi,pool.est);
+  var d3verdict = xs.p>0.10 ? 'pass' : xs.p>0.05 ? 'warn' : 'fail';
+  domains.push({
+    num: 3, name: 'As-Sidq', arabic: 'الصدق', english: 'Truth',
+    detail: 'Observed sig: '+xs.observed+' | Expected: '+xs.expected+' | O/E='+xs.ratio.toFixed(2),
+    verdict: d3verdict, verdictText: d3verdict==='pass'?'Truthful':d3verdict==='warn'?'Suspect':'Excess'
+  });
+
+  // 4. AL-YAQIN (Certainty) — Prediction Interval
+  var pi = predictionInterval(pool.est, pool.se, pool.tau2, k);
+  var ciCrossesNull = pool.ci[0]<=0 && pool.ci[1]>=0;
+  var piCrossesNull = pi ? (pi[0]<=0 && pi[1]>=0) : true;
+  var isSignificant = !ciCrossesNull;
+  var predGap = isSignificant && piCrossesNull;
+  var d4verdict = !predGap ? 'pass' : 'warn';
+  var piText = pi ? '['+fmt(pi[0],isLog)+', '+fmt(pi[1],isLog)+']' : 'k<3';
+  domains.push({
+    num: 4, name: 'Al-Yaqin', arabic: 'اليقين', english: 'Certainty',
+    detail: 'PI: '+piText+(predGap?' (crosses null despite sig CI)':''),
+    verdict: d4verdict, verdictText: d4verdict==='pass'?'Certain':'Prediction Gap'
+  });
+
+  // 5. AL-ADL (Justice) — Model Specification
+  var d5verdict = pool.I2<0.5 ? 'pass' : pool.I2<0.75 ? 'warn' : 'fail';
+  domains.push({
+    num: 5, name: "Al-'Adl", arabic: 'العدل', english: 'Justice',
+    detail: 'I²='+(pool.I2*100).toFixed(0)+'% | τ²='+pool.tau2.toFixed(4)+' | Q='+pool.Q.toFixed(1)+' (df='+(k-1)+')',
+    verdict: d5verdict, verdictText: d5verdict==='pass'?'Consistent':d5verdict==='warn'?'Heterogeneous':'Highly Variable'
+  });
+
+  // 6. AL-HIKMAH (Wisdom) — Clinical Significance
+  var effectDisp = isLog ? Math.exp(pool.est) : pool.est;
+  var ciLoDisp = isLog ? Math.exp(pool.ci[0]) : pool.ci[0];
+  var ciHiDisp = isLog ? Math.exp(pool.ci[1]) : pool.ci[1];
+  var meaningfulThreshold = isLog ? 0.1 : 0.2; // log(0.9)~-0.1 for ratios, 0.2 SMD for continuous
+  var isMeaningful = Math.abs(pool.est) > meaningfulThreshold;
+  var d6verdict = isSignificant && isMeaningful ? 'pass' : isSignificant ? 'warn' : 'info';
+  domains.push({
+    num: 6, name: 'Al-Hikmah', arabic: 'الحكمة', english: 'Wisdom',
+    detail: measure+'='+fmtEst(effectDisp,isLog)+' ['+fmtEst(ciLoDisp,isLog)+', '+fmtEst(ciHiDisp,isLog)+']'+(isMeaningful?'':' (below MCID threshold)'),
+    verdict: d6verdict, verdictText: d6verdict==='pass'?'Meaningful':d6verdict==='warn'?'Statistically Only':'Not Significant'
+  });
+
+  // 7. AS-SIRAT (The Path) — Overall Verdict
+  var failCount = domains.filter(function(d){return d.verdict==='fail'}).length;
+  var warnCount = domains.filter(function(d){return d.verdict==='warn'}).length;
+  var overallVerdict, overallLabel;
+  if (failCount===0 && warnCount<=1) { overallVerdict='CLEAR'; overallLabel='The evidence points clearly — proceed with confidence'; }
+  else if (failCount<=1 && warnCount<=2) { overallVerdict='CAUTION'; overallLabel='The evidence leans in one direction but with reservations'; }
+  else if (failCount<=2) { overallVerdict='UNCERTAIN'; overallLabel='The path is unclear — more evidence needed'; }
+  else { overallVerdict='BLOCKED'; overallLabel='Multiple serious concerns — do not rely on this evidence alone'; }
+
+  domains.push({
+    num: 7, name: 'As-Sirat', arabic: 'الصراط', english: 'The Path',
+    detail: failCount+' fail, '+warnCount+' caution across 6 domains',
+    verdict: overallVerdict==='CLEAR'?'pass':overallVerdict==='CAUTION'?'warn':'fail',
+    verdictText: overallVerdict
+  });
+
+  return {domains: domains, overall: overallVerdict, overallLabel: overallLabel, pool: pool, pi: pi};
+}
+
+// === FORMATTING ===
+function fmt(v, isLog) { return isLog ? Math.exp(v).toFixed(2) : v.toFixed(2); }
+function fmtEst(v, isLog) { return isLog ? v.toFixed(2) : v.toFixed(2); }
+
+// === UI ===
+function renderRows() {
+  var el = document.getElementById('study-rows');
+  var isBin = !(studies[0] && studies[0].mE !== undefined);
+  el.innerHTML = '';
+  studies.forEach(function(s,i){
+    var row = document.createElement('div');
+    row.className = 'data-grid';
+    if (isBin || s.eE !== undefined) {
+      row.innerHTML = '<input value="'+(s.study||'')+'" oninput="studies['+i+'].study=this.value" aria-label="Study">'+
+        '<input type="number" value="'+(s.eE??'')+'" oninput="studies['+i+'].eE=+this.value" aria-label="Events E">'+
+        '<input type="number" value="'+(s.nE??'')+'" oninput="studies['+i+'].nE=+this.value" aria-label="N E">'+
+        '<input type="number" value="'+(s.eC??'')+'" oninput="studies['+i+'].eC=+this.value" aria-label="Events C">'+
+        '<input type="number" value="'+(s.nC??'')+'" oninput="studies['+i+'].nC=+this.value" aria-label="N C">'+
+        '<button class="del-btn" onclick="studies.splice('+i+',1);renderRows()" aria-label="Delete">\u2715</button>';
+    } else {
+      row.innerHTML = '<input value="'+(s.study||'')+'" oninput="studies['+i+'].study=this.value">'+
+        '<input type="number" value="'+(s.mE??'')+'" oninput="studies['+i+'].mE=+this.value" style="width:60px">'+
+        '<input type="number" value="'+(s.sdE??'')+'" oninput="studies['+i+'].sdE=+this.value" style="width:60px">'+
+        '<input type="number" value="'+(s.nE??'')+'" oninput="studies['+i+'].nE=+this.value" style="width:60px">'+
+        '<input type="number" value="'+(s.nC??'')+'" oninput="studies['+i+'].nC=+this.value" style="width:60px">'+
+        '<button class="del-btn" onclick="studies.splice('+i+',1);renderRows()">\u2715</button>';
+    }
+    el.appendChild(row);
+  });
+}
+
+function addRow() {
+  studies.push({study:'',eE:0,nE:100,eC:0,nC:100});
+  renderRows();
+}
+
+function clearAll() {
+  studies = [];
+  renderRows();
+  document.getElementById('passport').classList.remove('visible');
+}
+
+function loadExample(idx) {
+  var ex = EXAMPLES[idx];
+  studies = ex.studies.map(function(s){return Object.assign({},s);});
+  renderRows();
+  // Update header for continuous
+  var hdr = document.getElementById('grid-header');
+  if (ex.measure === 'SMD') {
+    hdr.innerHTML = '<div class="hdr">Study</div><div class="hdr">Mean(E)</div><div class="hdr">SD(E)/N(E)</div><div class="hdr">Mean(C)</div><div class="hdr">SD(C)/N(C)</div><div class="hdr"></div>';
+  } else {
+    hdr.innerHTML = '<div class="hdr">Study</div><div class="hdr">Events(E)</div><div class="hdr">N(E)</div><div class="hdr">Events(C)</div><div class="hdr">N(C)</div><div class="hdr"></div>';
+  }
+  // Auto-run
+  runPassport();
+}
+
+function runPassport() {
+  if (studies.length < 2) { alert('Need at least 2 studies.'); return; }
+
+  // Detect measure
+  var measure = studies[0].mE !== undefined ? 'SMD' : (studies[0].eE !== undefined ? 'OR' : 'OR');
+  // Check if all effects are positive (RR-like)
+  var effects = studies.map(function(s){return getEffect(s, measure);});
+  var yi = effects.map(function(e){return e.yi;});
+  var vi = effects.map(function(e){return e.vi;});
+
+  var pool = dlPool(yi,vi);
+  if (!pool) { alert('Could not pool studies.'); return; }
+
+  var result = assessDomains(yi, vi, pool, measure);
+  lastResult = result;
+  lastResult.measure = measure;
+  lastResult.yi = yi;
+  lastResult.vi = vi;
+
+  // Render passport
+  document.getElementById('passport').classList.add('visible');
+  var gradeEl = document.getElementById('overallGrade');
+  gradeEl.textContent = result.overall;
+  gradeEl.className = 'grade grade-'+result.overall;
+  document.getElementById('overallLabel').textContent = result.overallLabel;
+
+  // Render domains
+  var domEl = document.getElementById('domains');
+  domEl.innerHTML = '';
+  result.domains.forEach(function(d) {
+    var div = document.createElement('div');
+    div.className = 'domain '+d.verdict;
+    div.innerHTML = '<div class="domain-num">'+d.num+'</div>'+
+      '<div><div class="domain-name">'+d.name+' <span class="domain-arabic">'+d.arabic+'</span> &mdash; '+d.english+'</div>'+
+      '<div class="domain-detail">'+d.detail+'</div></div>'+
+      '<div class="domain-verdict '+d.verdict+'">'+d.verdictText+'</div>';
+    domEl.appendChild(div);
+  });
+
+  // Summary table
+  var isLog = measure==='OR'||measure==='RR';
+  var st = document.getElementById('summaryTable');
+  st.innerHTML = '<tr><th>Metric</th><th>Value</th></tr>'+
+    '<tr><td>Studies (k)</td><td>'+pool.k+'</td></tr>'+
+    '<tr><td>Pooled '+measure+'</td><td>'+(isLog?Math.exp(pool.est).toFixed(3):pool.est.toFixed(3))+'</td></tr>'+
+    '<tr><td>95% CI (HKSJ)</td><td>['+(isLog?Math.exp(pool.ci[0]).toFixed(3):pool.ci[0].toFixed(3))+', '+(isLog?Math.exp(pool.ci[1]).toFixed(3):pool.ci[1].toFixed(3))+']</td></tr>'+
+    '<tr><td>I\u00B2</td><td>'+(pool.I2*100).toFixed(1)+'%</td></tr>'+
+    '<tr><td>\u03C4\u00B2</td><td>'+pool.tau2.toFixed(4)+'</td></tr>'+
+    '<tr><td>Overall Path</td><td><strong>'+result.overall+'</strong></td></tr>';
+
+  // Report text
+  renderReport(result, measure);
+}
+
+function renderReport(result, measure) {
+  var pool = result.pool;
+  var isLog = measure==='OR'||measure==='RR';
+  var effectText = isLog ? measure+'='+Math.exp(pool.est).toFixed(2)+' (95% CI '+Math.exp(pool.ci[0]).toFixed(2)+' to '+Math.exp(pool.ci[1]).toFixed(2)+')' :
+    measure+'='+pool.est.toFixed(2)+' (95% CI '+pool.ci[0].toFixed(2)+' to '+pool.ci[1].toFixed(2)+')';
+
+  var text = 'EVIDENCE PASSPORT (As-Sirat v1.0)\n\n'+
+    'Pooled Estimate: '+effectText+'\n'+
+    'Studies: k='+pool.k+' | I\u00B2='+(pool.I2*100).toFixed(0)+'% | \u03C4\u00B2='+pool.tau2.toFixed(4)+'\n\n'+
+    'SEVEN-DOMAIN ASSESSMENT:\n\n';
+
+  result.domains.forEach(function(d) {
+    text += d.num+'. '+d.name+' ('+d.english+'): '+d.verdictText.toUpperCase()+'\n   '+d.detail+'\n\n';
+  });
+
+  text += 'OVERALL VERDICT: '+result.overall+'\n'+result.overallLabel+'\n\n'+
+    'Generated by As-Sirat (Ahmad, 2026). No data left the device.';
+
+  document.getElementById('reportText').textContent = text;
+}
+
+function copyReport() {
+  var text = document.getElementById('reportText').textContent;
+  navigator.clipboard.writeText(text).then(function(){alert('Copied!')}).catch(function(){});
+}
+
+function exportJSON() {
+  if (!lastResult) return;
+  var data = {
+    version: 'as-sirat-1.0',
+    measure: lastResult.measure,
+    pool: {est: lastResult.pool.est, ci: lastResult.pool.ci, tau2: lastResult.pool.tau2, I2: lastResult.pool.I2, k: lastResult.pool.k},
+    domains: lastResult.domains.map(function(d){return {name:d.name,english:d.english,verdict:d.verdict,detail:d.detail};}),
+    overall: lastResult.overall
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='evidence-passport.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function toggleTheme() {
+  var d = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', d==='dark'?'light':'dark');
+  document.querySelector('.theme-btn').textContent = d==='dark'?'Dark':'Light';
+}
+
+// Init
+studies = [{study:'',eE:0,nE:100,eC:0,nC:100},{study:'',eE:0,nE:100,eC:0,nC:100}];
+renderRows();
+</script>
+</body>
+</html>
